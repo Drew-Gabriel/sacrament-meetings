@@ -2,16 +2,16 @@ import { NextResponse } from 'next/server';
 import { getMeetings } from '@/lib/meetings-db';
 
 export async function GET() {
-  const meetings = getMeetings();
+  const meetings = await getMeetings();
 
-  if (meetings.length === 0) {
+  const currentMeeting = meetings[0];
+
+  if (!currentMeeting) {
     return NextResponse.json(
       { error: 'No meetings found' },
-      { status: 404 }
+      { status: 404 },
     );
   }
-
-  const currentMeeting = meetings[meetings.length - 1];
 
   return NextResponse.json(currentMeeting);
 }

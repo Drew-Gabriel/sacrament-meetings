@@ -7,19 +7,12 @@ type RouteContext = {
 
 export async function GET(
   _request: Request,
-  context: RouteContext,
+  { params }: RouteContext,
 ) {
-  const { id } = await context.params;
+  const { id } = await params;
   const meetingId = Number(id);
 
-  if (!Number.isInteger(meetingId)) {
-    return NextResponse.json(
-      { error: 'Invalid meeting ID' },
-      { status: 400 },
-    );
-  }
-
-  const meeting = getMeetingById(meetingId);
+  const meeting = await getMeetingById(meetingId);
 
   if (!meeting) {
     return NextResponse.json(
