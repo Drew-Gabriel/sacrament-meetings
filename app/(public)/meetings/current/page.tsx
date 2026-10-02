@@ -1,6 +1,8 @@
 import { getMeetings } from '@/lib/meetings-db';
 import MeetingDetail from '@/components/MeetingDetail';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CurrentMeetingPage() {
   const meetings = await getMeetings();
 
