@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 import { getMeetingsPaginated } from '@/lib/meetings-db';
 import MeetingCard from '@/components/MeetingCard';
 
@@ -43,9 +44,18 @@ export default async function MeetingsPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">
-        Sacrament Meetings
-      </h1>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-3xl font-bold">
+          Sacrament Meetings
+        </h1>
+
+        <Link
+          href="/meetings/new"
+          className="rounded-md bg-green-600 px-5 py-2 text-center font-semibold text-white hover:bg-green-700"
+        >
+          Create New Meeting
+        </Link>
+      </div>
 
       <form
         action="/meetings"
@@ -95,7 +105,10 @@ export default async function MeetingsPage({
         <>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {meetings.map((meeting) => (
-              <MeetingCard key={meeting.id} meeting={meeting} />
+              <MeetingCard
+                key={meeting.id}
+                meeting={meeting}
+              />
             ))}
           </div>
 

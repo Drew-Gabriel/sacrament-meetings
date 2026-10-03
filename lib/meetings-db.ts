@@ -1,6 +1,8 @@
 import { sql } from './db';
 import { SacramentMeeting } from './types';
 
+export type MeetingInput = Omit<SacramentMeeting, 'id'>;
+
 type MeetingRow = {
   id: number;
   date: string | Date;
@@ -25,7 +27,7 @@ function formatDatabaseDate(date: string | Date): string {
 
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
@@ -34,7 +36,8 @@ function mapMeeting(row: MeetingRow): SacramentMeeting {
   return {
     id: row.id,
     date: formatDatabaseDate(row.date),
-    meetingType: row.meeting_type as SacramentMeeting['meetingType'],
+    meetingType:
+      row.meeting_type as SacramentMeeting['meetingType'],
     presiding: row.presiding,
     conducting: row.conducting,
     announcements: row.announcements ?? [],
@@ -107,10 +110,15 @@ export async function getMeetingsPaginated(
   `;
 
   const totalCount = Number(countRows[0]?.count ?? 0);
-  const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalCount / safePageSize),
+  );
 
   const currentPage = Math.min(safePage, totalPages);
-  const currentOffset = (currentPage - 1) * safePageSize;
+  const currentOffset =
+    (currentPage - 1) * safePageSize;
 
   const rows = await sql`
     SELECT *
@@ -127,7 +135,9 @@ export async function getMeetingsPaginated(
   `;
 
   return {
-    meetings: rows.map((row) => mapMeeting(row as MeetingRow)),
+    meetings: rows.map((row) =>
+      mapMeeting(row as MeetingRow),
+    ),
     totalCount,
     totalPages,
     currentPage,
@@ -162,4 +172,91 @@ export async function getMeetingByDate(
   `;
 
   return rows.map((row) => mapMeeting(row as MeetingRow));
+}
+
+/* =========================================
+   W04 DATABASE MUTATION FUNCTIONS
+   ========================================= */
+
+export async function createMeeting(
+  meeting: MeetingInput,
+): Promise<SacramentMeeting> {
+  const rows = await sql`
+    INSERT INTO meetings (
+      date,
+      meeting_type,
+      presiding,
+      conducting,
+      announcements,
+      opening_hymn,
+      opening_prayer,
+      ward_business,
+      stake_business,
+      sacrament_hymn,
+      speakers,
+      closing_hymn,
+      closing_prayer
+    )
+    VALUES (
+      ${meeting.date},
+      ${meeting.meetingType},
+      ${meeting.presiding},
+      ${meeting.conducting},
+      ${meeting.announcements ?? []},
+      ${JSON.stringify(meeting.openingHymn)},
+      ${meeting.openingPrayer},
+      ${JSON.stringify(meeting.wardBusiness)},
+      ${meeting.stakeBusiness},
+      ${JSON.stringify(meeting.sacramentHymn)},
+      ${JSON.stringify(meeting.speakers)},
+      ${JSON.stringify(meeting.closingHymn)},
+      ${meeting.closingPrayer}
+    )
+    RETURNING *
+  `;
+
+  return mapMeeting(rows[0] as MeetingRow);
+}
+
+export async function updateMeeting(
+  id: number,
+  meeting: MeetingInput,
+): Promise<SacramentMeeting | undefined> {
+  const rows = await sql`
+    UPDATE meetings
+    SET
+      date = ${meeting.date},
+      meeting_type = ${meeting.meetingType},
+      presiding = ${meeting.presiding},
+      conducting = ${meeting.conducting},
+      announcements = ${meeting.announcements ?? []},
+      opening_hymn = ${JSON.stringify(meeting.openingHymn)},
+      opening_prayer = ${meeting.openingPrayer},
+      ward_business = ${JSON.stringify(meeting.wardBusiness)},
+      stake_business = ${meeting.stakeBusiness},
+      sacrament_hymn = ${JSON.stringify(meeting.sacramentHymn)},
+      speakers = ${JSON.stringify(meeting.speakers)},
+      closing_hymn = ${JSON.stringify(meeting.closingHymn)},
+      closing_prayer = ${meeting.closingPrayer}
+    WHERE id = ${id}
+    RETURNING *
+  `;
+
+  if (rows.length === 0) {
+    return undefined;
+  }
+
+  return mapMeeting(rows[0] as MeetingRow);
+}
+
+export async function deleteMeeting(
+  id: number,
+): Promise<boolean> {
+  const rows = await sql`
+    DELETE FROM meetings
+    WHERE id = ${id}
+    RETURNING id
+  `;
+
+  return rows.length > 0;
 }

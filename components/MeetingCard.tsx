@@ -1,4 +1,6 @@
 import Link from 'next/link';
+
+import { deleteMeeting } from '@/lib/actions';
 import { SacramentMeeting } from '@/lib/types';
 
 type MeetingCardProps = {
@@ -30,22 +32,44 @@ export default function MeetingCard({
           </h2>
         </div>
 
-        <Link
-          href={`/meetings/${meeting.id}`}
-          className="rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          View Meeting
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/meetings/${meeting.id}`}
+            className="rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            View Meeting
+          </Link>
+
+          <Link
+            href={`/meetings/${meeting.id}/edit`}
+            className="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Edit
+          </Link>
+
+          <form action={deleteMeeting.bind(null, meeting.id)}>
+            <button
+              type="submit"
+              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="mt-4 border-t pt-4 text-sm text-gray-600">
         <p>
-          <span className="font-semibold">Presiding:</span>{' '}
+          <span className="font-semibold">
+            Presiding:
+          </span>{' '}
           {meeting.presiding}
         </p>
 
         <p className="mt-1">
-          <span className="font-semibold">Conducting:</span>{' '}
+          <span className="font-semibold">
+            Conducting:
+          </span>{' '}
           {meeting.conducting}
         </p>
       </div>
