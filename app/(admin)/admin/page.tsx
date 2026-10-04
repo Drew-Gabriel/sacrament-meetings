@@ -1,3 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Meeting Administration',
+  description:
+    'Manage sacrament meeting programs and meeting information.',
+};
+
 export default function AdminPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">

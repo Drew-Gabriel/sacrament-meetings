@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import NavLinks from './NavLinks';
+import SignOutButton from './sign-out-button';
 
 export default function Header() {
   return (
@@ -12,7 +13,10 @@ export default function Header() {
           Sacrament Meeting Planner
         </Link>
 
-        <NavLinks />
+        <div className="flex items-center gap-4">
+          <NavLinks />
+          <SignOutButton />
+        </div>
       </div>
     </header>
   );

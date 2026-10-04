@@ -1,3 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sacrament Meetings',
+  description:
+    'View current and past sacrament meeting programs.',
+};
+
 export default function MeetingsLayout({
   children,
 }: Readonly<{
